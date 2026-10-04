@@ -34,14 +34,14 @@ impl InMemoryComputeRepository {
         let key = (node.tenant_id.clone(), node.node_id.clone());
         self.nodes
             .write()
-            .expect("compute repository lock poisoned")
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .insert(key, node);
     }
 
     pub fn get_node(&self, tenant_id: &str, node_id: &str) -> Option<ComputeNode> {
         self.nodes
             .read()
-            .unwrap()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .get(&(tenant_id.to_string(), node_id.to_string()))
             .cloned()
     }
@@ -69,14 +69,14 @@ impl InMemoryComputeRepository {
         let key = (instance.tenant_id.clone(), instance.instance_id.clone());
         self.instances
             .write()
-            .expect("compute repository lock poisoned")
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .insert(key, instance);
     }
 
     pub fn get_instance(&self, tenant_id: &str, instance_id: &str) -> Option<ComputeInstance> {
         self.instances
             .read()
-            .unwrap()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .get(&(tenant_id.to_string(), instance_id.to_string()))
             .cloned()
     }
@@ -87,7 +87,7 @@ impl InMemoryComputeRepository {
     }
 
     pub fn get_offering(&self, tenant_id: &str, offering_id: &str) -> Option<ComputeOffering> {
-        self.read_guard(&self.offerings)
+        Self::read_guard(&self.offerings)
             .get(&(tenant_id.to_string(), offering_id.to_string()))
             .cloned()
     }
@@ -99,7 +99,7 @@ impl InMemoryComputeRepository {
         );
         self.allocations
             .write()
-            .expect("compute repository lock poisoned")
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .insert(key, allocation);
     }
 
@@ -110,7 +110,7 @@ impl InMemoryComputeRepository {
     ) -> Option<ComputeAllocation> {
         self.allocations
             .read()
-            .unwrap()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
             .get(&(tenant_id.to_string(), allocation_id.to_string()))
             .cloned()
     }
@@ -124,7 +124,7 @@ impl InMemoryComputeRepository {
         let allocations = self
             .allocations
             .read()
-            .expect("compute repository lock poisoned");
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         let mut rows: Vec<ComputeAllocation> = allocations
             .iter()
             .filter(|((tenant, _), a)| tenant == tenant_id && a.is_expired(as_of))
