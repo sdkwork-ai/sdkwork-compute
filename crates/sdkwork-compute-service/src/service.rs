@@ -63,7 +63,10 @@ impl ComputeService {
         as_of: &str,
         limit: usize,
     ) -> usize {
-        let expired = self.repo.list_expired_allocations(as_of, limit);
+        // Tenant filter is applied row-wise because the in-memory store is
+        // the test vehicle; the sqlx repository filters in SQL.
+        let _ = tenant_id;
+        let expired = self.repo.list_expired_allocations(tenant_id, as_of, limit);
         let mut reconciled = 0;
         for mut allocation in expired {
             allocation.allocation_state = "expired".to_string();

@@ -4,6 +4,7 @@
 //! allocations. Consumers (agents, sandbox, webserver) hold only
 //! allocation/instance references.
 
+pub mod http;
 pub mod model;
 pub mod repository;
 pub mod service;
