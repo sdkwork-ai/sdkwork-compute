@@ -1,0 +1,18 @@
+[package]
+name = "sdkwork-compute-service"
+version = "0.1.0"
+edition = "2021"
+description = "Compute lease and on-demand allocation domain service"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
+
+[lints]
+workspace = true
