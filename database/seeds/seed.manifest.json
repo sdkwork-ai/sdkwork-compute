@@ -3,5 +3,19 @@
   "kind": "sdkwork.database.seed-manifest",
   "moduleId": "compute",
   "seedOnBoot": false,
-  "entries": []
+  "entries": [],
+  "supportedLocales": [
+    "zh-CN",
+    "en-US"
+  ],
+  "activeLocales": [
+    "zh-CN",
+    "en-US"
+  ],
+  "localeSets": {
+    "common": [
+      "zh-CN",
+      "en-US"
+    ]
+  }
 }
