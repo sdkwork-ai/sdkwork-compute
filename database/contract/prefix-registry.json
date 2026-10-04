@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.database.prefix-registry",
+  "prefixes": [
+    {
+      "prefix": "compute_",
+      "profile": "operational_state",
+      "owner": "sdkwork-runtime-platform",
+      "write_owner": "sdkwork-intelligence-compute-repository-sqlx",
+      "system_of_record": true,
+      "domain": "compute"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+schema_version: 1
+kind: sdkwork.database.schema
+database_role: authoritative-server
+module_id: compute
+contract_version: 0.1.0
+owner_team: sdkwork-runtime-platform
+compliance_level: L2
+engines:
+  - postgres
+table_prefix: compute_
+write_owner: sdkwork-intelligence-compute-repository-sqlx
+tables:
+  - name: compute_node
+    profile: operational_state
+    lifecycle_status: active
+    owner: sdkwork-runtime-platform
+    description: Compute node inventory (docker, micro VM pool, bare metal, cloud pool) with dispatch endpoint, capacity, assurance capabilities, scheduling lifecycle and liveness telemetry.
+  - name: compute_offering
+    profile: reference_data
+    lifecycle_status: active
+    owner: sdkwork-runtime-platform
+    description: Rentable compute offering (SKU): resource shape, isolation assurance level and metering basis.
+  - name: compute_instance
+    profile: tenant_entity
+    lifecycle_status: active
+    owner: sdkwork-runtime-platform
+    description: Rented compute instance (sandbox, agent runtime, webserver process, custom) with resources, allocated node, rental expiry and lifecycle state.
+  - name: compute_allocation
+    profile: operational_state
+    lifecycle_status: active
+    owner: sdkwork-runtime-platform
+    description: On-demand allocation binding a consumer work item to a node/instance with lifecycle state, lease evidence and fencing generation.
