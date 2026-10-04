@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "kind": "sdkwork.database.seed-manifest",
-  "moduleId": "compute",
-  "seedOnBoot": false,
-  "entries": [],
+  "kind": "sdkwork.database.seed",
+  "i18nVersion": "1.0.0",
+  "defaultLocale": "zh-CN",
+  "fallbackLocale": "zh-CN",
   "supportedLocales": [
     "zh-CN",
     "en-US"
@@ -13,9 +13,21 @@
     "en-US"
   ],
   "localeSets": {
-    "common": [
-      "zh-CN",
-      "en-US"
-    ]
+    "zh-CN": {
+      "version": "0.1.0",
+      "required": true,
+      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": [
+        "locales/zh-CN/common.json"
+      ]
+    },
+    "en-US": {
+      "version": "0.1.0",
+      "required": true,
+      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": [
+        "locales/en-US/common.json"
+      ]
+    }
   }
 }
