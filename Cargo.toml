@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/sdkwork-compute-service",
+    "crates/sdkwork-compute-repository-sqlx",
 ]
 
 [workspace.dependencies]
@@ -12,6 +13,7 @@ tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "sync", 
 tracing = "0.1"
 
 sdkwork-compute-service = { path = "crates/sdkwork-compute-service" }
+sdkwork-compute-repository-sqlx = { path = "crates/sdkwork-compute-repository-sqlx" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
