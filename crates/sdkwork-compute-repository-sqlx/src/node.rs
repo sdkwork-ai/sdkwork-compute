@@ -29,6 +29,7 @@ pub struct ComputeNodeRow {
 
 const NODE_COLUMNS: &str = "tenant_id, node_id, display_name, node_kind, dispatch_endpoint, region, assurance_capabilities::text AS assurance_capabilities, capacity_vcpu, capacity_memory_mb, capacity_disk_mb, max_units, status, last_heartbeat_at::text AS last_heartbeat_at, health_state, metadata::text AS metadata, version, created_at::text AS created_at, updated_at::text AS updated_at, deleted_at::text AS deleted_at";
 
+#[allow(clippy::too_many_arguments)]
 pub async fn upsert_node(
     pool: &PgPool,
     tenant_id: &str,

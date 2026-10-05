@@ -31,6 +31,7 @@ pub struct ComputeInstanceRow {
 
 const INSTANCE_COLUMNS: &str = "tenant_id, instance_id, owned_by, purpose, offering_id, node_id, vcpu, memory_mb, disk_mb, assurance_level, state, expires_at::text AS expires_at, renewed_until::text AS renewed_until, endpoints::text AS endpoints, metrics::text AS metrics, workspace_ref, last_failure, version, created_at::text AS created_at, updated_at::text AS updated_at, deleted_at::text AS deleted_at";
 
+#[allow(clippy::too_many_arguments)]
 pub async fn insert_instance(
     pool: &PgPool,
     tenant_id: &str,

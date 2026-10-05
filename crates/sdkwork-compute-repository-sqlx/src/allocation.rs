@@ -26,6 +26,7 @@ pub struct ComputeAllocationRow {
 
 const ALLOCATION_COLUMNS: &str = "tenant_id, allocation_id, consumer_domain, consumer_ref, instance_id, node_id, requested_target, effective_target, allocation_state, lease_owner, lease_expires_at::text AS lease_expires_at, fencing_generation, is_current, version, created_at::text AS created_at, updated_at::text AS updated_at";
 
+#[allow(clippy::too_many_arguments)]
 pub async fn insert_allocation(
     pool: &PgPool,
     tenant_id: &str,
@@ -94,13 +95,15 @@ pub async fn transition_allocation_state(
 
 pub async fn list_expired_allocations(
     pool: &PgPool,
+    tenant_id: &str,
     now: &str,
     limit: i64,
 ) -> RepoResult<Vec<ComputeAllocationRow>> {
     let query = format!(
-        "SELECT {ALLOCATION_COLUMNS} FROM compute_allocation WHERE allocation_state IN ('requested', 'allocating', 'ready', 'active') AND lease_expires_at IS NOT NULL AND lease_expires_at < $1::timestamptz ORDER BY lease_expires_at ASC LIMIT $2"
+        "SELECT {ALLOCATION_COLUMNS} FROM compute_allocation WHERE tenant_id = $1 AND allocation_state IN ('requested', 'allocating', 'ready', 'active') AND lease_expires_at IS NOT NULL AND lease_expires_at < $2::timestamptz ORDER BY lease_expires_at ASC LIMIT $3"
     );
     let rows = sqlx::query_as::<_, ComputeAllocationRow>(&query)
+        .bind(tenant_id)
         .bind(now)
         .bind(limit)
         .fetch_all(pool)
