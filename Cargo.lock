@@ -1093,6 +1093,7 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 name = "sdkwork-compute-repository-sqlx"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "sdkwork-compute-service",
  "serde",
  "serde_json",

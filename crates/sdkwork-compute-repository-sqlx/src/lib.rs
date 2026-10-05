@@ -6,6 +6,7 @@
 pub mod allocation;
 pub mod instance;
 pub mod node;
+pub mod port;
 
 use sqlx::PgPool;
 
