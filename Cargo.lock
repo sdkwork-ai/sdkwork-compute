@@ -1090,6 +1090,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
+name = "sdkwork-compute-repository-memory"
+version = "0.1.0"
+dependencies = [
+ "sdkwork-compute-service",
+]
+
+[[package]]
 name = "sdkwork-compute-repository-sqlx"
 version = "0.1.0"
 dependencies = [
@@ -1118,6 +1125,10 @@ dependencies = [
  "tower",
  "tracing",
 ]
+
+[[package]]
+name = "sdkwork-compute-service-host"
+version = "0.1.0"
 
 [[package]]
 name = "serde"

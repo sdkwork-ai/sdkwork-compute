@@ -1,0 +1,15 @@
+[package]
+name = "sdkwork-compute-repository-memory"
+version = "0.1.0"
+edition = "2021"
+description = "In-memory compute repository for testing and lightweight deployments"
+
+[lib]
+name = "sdkwork_compute_repository_memory"
+path = "src/lib.rs"
+
+[dependencies]
+sdkwork-compute-service = { workspace = true }
+
+[lints]
+workspace = true

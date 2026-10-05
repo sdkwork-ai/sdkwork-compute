@@ -1,0 +1,12 @@
+[package]
+name = "sdkwork-compute-service-host"
+version = "0.1.0"
+edition = "2021"
+description = "Phase 0 composition boundary for the SDKWork Compute service host."
+
+[lib]
+name = "sdkwork_compute_service_host"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

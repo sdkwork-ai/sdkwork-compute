@@ -246,7 +246,7 @@ impl ComputeRepository for PgComputeRepository {
         limit: usize,
     ) -> Vec<ComputeAllocation> {
         // Tenant filter rides in SQL for the PostgreSQL sweep.
-        allocation::list_expired_allocations(&self.pool, as_of, limit as i64)
+        allocation::list_expired_allocations(&self.pool, tenant_id, as_of, limit as i64)
             .await
             .unwrap_or_default()
             .into_iter()
