@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-compute",
+    "displayName": "SDKWork Compute",
+    "version": "0.1.0",
+    "type": "capability-module",
+    "root": "sdkwork-compute",
+    "domain": "intelligence",
+    "capability": "compute",
+    "languages": [
+      "rust"
+    ],
+    "generated": false,
+    "private": true,
+    "manifests": [
+      "package.json",
+      "Cargo.toml",
+      "database/database.manifest.json"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "SDKWORK_WORKSPACE_SPEC.md",
+      "path": "../sdkwork-specs/SDKWORK_WORKSPACE_SPEC.md",
+      "purpose": "Repository root directory dictionary and .sdkwork workspace rules."
+    },
+    {
+      "file": "COMPONENT_SPEC.md",
+      "path": "../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Local component specs directory and manifest rules."
+    },
+    {
+      "file": "CODE_STYLE_SPEC.md",
+      "path": "../sdkwork-specs/CODE_STYLE_SPEC.md",
+      "purpose": "Authored source structure and generated code boundaries."
+    },
+    {
+      "file": "NAMING_SPEC.md",
+      "path": "../sdkwork-specs/NAMING_SPEC.md",
+      "purpose": "Canonical SDKWork naming rules."
+    },
+    {
+      "file": "RUST_CODE_SPEC.md",
+      "path": "../sdkwork-specs/RUST_CODE_SPEC.md",
+      "purpose": "Rust crate structure, error, lint and dependency rules."
+    },
+    {
+      "file": "DATABASE_SPEC.md",
+      "path": "../sdkwork-specs/DATABASE_SPEC.md",
+      "purpose": "PostgreSQL data contract, profiles, field dictionary and naming."
+    },
+    {
+      "file": "DATABASE_FRAMEWORK_SPEC.md",
+      "path": "../sdkwork-specs/DATABASE_FRAMEWORK_SPEC.md",
+      "purpose": "Database lifecycle, migration and drift-gate rules."
+    }
+  ],
+  "contracts": {
+    "layerRole": "capability-domain",
+    "publicExports": [
+      "sdkwork-compute-service (domain model + repository port + service + internal HTTP)"
+    ],
+    "sdkDependencies": [],
+    "runtimeEntrypoints": [],
+    "routeManifest": null,
+    "sdkClients": [],
+    "events": [],
+    "configKeys": []
+  },
+  "verification": {
+    "commands": [
+      "cargo test -p sdkwork-compute-service --lib",
+      "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root ."
+    ]
+  }
+}
