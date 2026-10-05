@@ -242,8 +242,8 @@ async fn put_node(
         updated_at: now_stamp(),
         deleted_at: None,
     };
-    state.register_node(node);
-    let Some(stored) = state.get_node(&tenant_id, &node_id) else {
+    state.register_node(node).await;
+    let Some(stored) = state.get_node(&tenant_id, &node_id).await else {
         return internal_error("node vanished immediately after registration").into_response();
     };
     (StatusCode::OK, Json(envelope(ItemData { item: stored }))).into_response()
@@ -258,7 +258,7 @@ async fn get_node(
         Ok(value) => value,
         Err(problem) => return problem.into_response(),
     };
-    match state.get_node(&tenant_id, &node_id) {
+    match state.get_node(&tenant_id, &node_id).await {
         Some(node) => (StatusCode::OK, Json(envelope(ItemData { item: node }))).into_response(),
         None => not_found("compute node not found").into_response(),
     }
@@ -273,7 +273,9 @@ async fn list_nodes(
         Ok(value) => value,
         Err(problem) => return problem.into_response(),
     };
-    let items = state.list_eligible_nodes(&tenant_id, query.node_kind.as_deref());
+    let items = state
+        .list_eligible_nodes(&tenant_id, query.node_kind.as_deref())
+        .await;
     let total = items.len();
     (
         StatusCode::OK,
@@ -320,8 +322,8 @@ async fn post_instance(
         updated_at: now_stamp(),
         deleted_at: None,
     };
-    state.create_instance(instance);
-    let Some(stored) = state.get_instance(&tenant_id, &body.instance_id) else {
+    state.create_instance(instance).await;
+    let Some(stored) = state.get_instance(&tenant_id, &body.instance_id).await else {
         return internal_error("instance vanished immediately after creation").into_response();
     };
     (
@@ -340,7 +342,7 @@ async fn get_instance(
         Ok(value) => value,
         Err(problem) => return problem.into_response(),
     };
-    match state.get_instance(&tenant_id, &instance_id) {
+    match state.get_instance(&tenant_id, &instance_id).await {
         Some(instance) => {
             (StatusCode::OK, Json(envelope(ItemData { item: instance }))).into_response()
         }
@@ -376,8 +378,8 @@ async fn put_allocation(
         created_at: now_stamp(),
         updated_at: now_stamp(),
     };
-    state.record_allocation(allocation);
-    let Some(stored) = state.get_allocation(&tenant_id, &allocation_id) else {
+    state.record_allocation(allocation).await;
+    let Some(stored) = state.get_allocation(&tenant_id, &allocation_id).await else {
         return internal_error("allocation vanished immediately after recording").into_response();
     };
     (StatusCode::OK, Json(envelope(ItemData { item: stored }))).into_response()
@@ -392,7 +394,7 @@ async fn get_allocation(
         Ok(value) => value,
         Err(problem) => return problem.into_response(),
     };
-    match state.get_allocation(&tenant_id, &allocation_id) {
+    match state.get_allocation(&tenant_id, &allocation_id).await {
         Some(allocation) => (
             StatusCode::OK,
             Json(envelope(ItemData { item: allocation })),
@@ -407,7 +409,9 @@ async fn post_reconcile(State(state): State<ComputeHttpState>, headers: HeaderMa
         Ok(value) => value,
         Err(problem) => return problem.into_response(),
     };
-    let reconciled = state.reconcile_expired_allocations(&tenant_id, &now_stamp(), 100);
+    let reconciled = state
+        .reconcile_expired_allocations(&tenant_id, &now_stamp(), 100)
+        .await;
     (
         StatusCode::OK,
         Json(envelope(ItemData {
@@ -627,11 +631,15 @@ mod tests {
 
         // A future as_of finds nothing expired; a past as_of expires it.
         assert_eq!(
-            service.reconcile_expired_allocations("10", "2026-10-02T00:00:00Z", 10),
+            service
+                .reconcile_expired_allocations("10", "2026-10-02T00:00:00Z", 10)
+                .await,
             0
         );
         assert_eq!(
-            service.reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10),
+            service
+                .reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10)
+                .await,
             1
         );
 

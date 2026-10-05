@@ -1,77 +1,83 @@
 //! Compute service: high-level operations over the compute domain.
 
-use crate::model::{ComputeAllocation, ComputeInstance, ComputeNode};
-use crate::repository::InMemoryComputeRepository;
+use std::sync::Arc;
 
-/// High-level compute service operating over an in-memory repository.
-/// Production deployments replace the repository with a sqlx-backed
-/// implementation; the service logic is repository-agnostic.
+use crate::model::{ComputeAllocation, ComputeInstance, ComputeNode};
+use crate::repository::ComputeRepository;
+
+/// High-level compute service operating over a [`ComputeRepository`] port.
+/// Test/lightweight deployments inject [`InMemoryComputeRepository`];
+/// production injects the sqlx-backed implementation — the service logic is
+/// repository-agnostic (sandbox-module pattern: `Arc<dyn Trait>`).
+///
+/// Methods are async because the production port is async (sqlx); the
+/// in-memory implementation completes immediately.
 pub struct ComputeService {
-    repo: std::sync::Arc<InMemoryComputeRepository>,
+    repo: Arc<dyn ComputeRepository>,
 }
 
 impl ComputeService {
-    pub fn new(repo: std::sync::Arc<InMemoryComputeRepository>) -> Self {
+    pub fn new(repo: Arc<dyn ComputeRepository>) -> Self {
         Self { repo }
     }
 
-    pub fn repo(&self) -> &InMemoryComputeRepository {
-        &self.repo
+    pub async fn register_node(&self, node: ComputeNode) {
+        self.repo.upsert_node(node).await;
     }
 
-    pub fn register_node(&self, node: ComputeNode) {
-        self.repo.upsert_node(node);
+    pub async fn get_node(&self, tenant_id: &str, node_id: &str) -> Option<ComputeNode> {
+        self.repo.get_node(tenant_id, node_id).await
     }
 
-    pub fn get_node(&self, tenant_id: &str, node_id: &str) -> Option<ComputeNode> {
-        self.repo.get_node(tenant_id, node_id)
-    }
-
-    pub fn list_eligible_nodes(
+    pub async fn list_eligible_nodes(
         &self,
         tenant_id: &str,
         node_kind: Option<&str>,
     ) -> Vec<ComputeNode> {
-        self.repo.list_eligible_nodes(tenant_id, node_kind)
+        self.repo.list_eligible_nodes(tenant_id, node_kind).await
     }
 
-    pub fn create_instance(&self, instance: ComputeInstance) {
-        self.repo.upsert_instance(instance);
+    pub async fn create_instance(&self, instance: ComputeInstance) {
+        self.repo.upsert_instance(instance).await;
     }
 
-    pub fn get_instance(&self, tenant_id: &str, instance_id: &str) -> Option<ComputeInstance> {
-        self.repo.get_instance(tenant_id, instance_id)
+    pub async fn get_instance(
+        &self,
+        tenant_id: &str,
+        instance_id: &str,
+    ) -> Option<ComputeInstance> {
+        self.repo.get_instance(tenant_id, instance_id).await
     }
 
-    pub fn record_allocation(&self, allocation: ComputeAllocation) {
-        self.repo.upsert_allocation(allocation);
+    pub async fn record_allocation(&self, allocation: ComputeAllocation) {
+        self.repo.upsert_allocation(allocation).await;
     }
 
-    pub fn get_allocation(
+    pub async fn get_allocation(
         &self,
         tenant_id: &str,
         allocation_id: &str,
     ) -> Option<ComputeAllocation> {
-        self.repo.get_allocation(tenant_id, allocation_id)
+        self.repo.get_allocation(tenant_id, allocation_id).await
     }
 
     /// Expires live allocations whose lease lapsed before `as_of`.
     /// Tolerates per-row races (skips already-reconciled rows).
-    pub fn reconcile_expired_allocations(
+    pub async fn reconcile_expired_allocations(
         &self,
         tenant_id: &str,
         as_of: &str,
         limit: usize,
     ) -> usize {
-        // Tenant filter is applied row-wise because the in-memory store is
-        // the test vehicle; the sqlx repository filters in SQL.
-        let _ = tenant_id;
-        let expired = self.repo.list_expired_allocations(tenant_id, as_of, limit);
+        let expired = self
+            .repo
+            .list_expired_allocations(tenant_id, as_of, limit)
+            .await;
         let mut reconciled = 0;
         for mut allocation in expired {
             allocation.allocation_state = "expired".to_string();
             allocation.version += 1;
-            self.repo.upsert_allocation(allocation);
+            self.repo.upsert_allocation(allocation).await;
             reconciled += 1;
         }
         reconciled
@@ -82,7 +88,6 @@ impl ComputeService {
 mod tests {
     use super::*;
     use crate::repository::InMemoryComputeRepository;
-    use std::sync::Arc;
 
     fn make_node(tenant: &str, id: &str, status: &str) -> ComputeNode {
         ComputeNode {
@@ -129,36 +134,48 @@ mod tests {
         }
     }
 
-    #[test]
-    fn node_registration_and_eligibility() {
-        let repo = Arc::new(InMemoryComputeRepository::new());
-        let service = ComputeService::new(repo);
+    #[tokio::test]
+    async fn node_registration_and_eligibility() {
+        let service = ComputeService::new(Arc::new(InMemoryComputeRepository::new()));
 
-        service.register_node(make_node("10", "node.1", "active"));
-        service.register_node(make_node("10", "node.2", "draining"));
+        service
+            .register_node(make_node("10", "node.1", "active"))
+            .await;
+        service
+            .register_node(make_node("10", "node.2", "draining"))
+            .await;
 
-        let eligible = service.list_eligible_nodes("10", Some("docker"));
+        let eligible = service.list_eligible_nodes("10", Some("docker")).await;
         assert_eq!(eligible.len(), 1);
         assert_eq!(eligible[0].node_id, "node.1");
+
+        // Tenant isolation: another tenant sees nothing.
+        let other = service.list_eligible_nodes("20", Some("docker")).await;
+        assert!(other.is_empty());
     }
 
-    #[test]
-    fn reconcile_expires_lapsed_allocations() {
-        let repo = Arc::new(InMemoryComputeRepository::new());
-        let service = ComputeService::new(repo);
+    #[tokio::test]
+    async fn reconcile_expires_lapsed_allocations() {
+        let service = ComputeService::new(Arc::new(InMemoryComputeRepository::new()));
 
-        service.record_allocation(make_allocation("10", "alloc.1", "2026-10-03T00:00:00Z"));
+        service
+            .record_allocation(make_allocation("10", "alloc.1", "2026-10-03T00:00:00Z"))
+            .await;
 
-        let reconciled = service.reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10);
+        let reconciled = service
+            .reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10)
+            .await;
         assert_eq!(reconciled, 1);
 
         let alloc = service
             .get_allocation("10", "alloc.1")
+            .await
             .expect("allocation exists");
         assert_eq!(alloc.allocation_state, "expired");
 
-        let reconciled_again =
-            service.reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10);
+        let reconciled_again = service
+            .reconcile_expired_allocations("10", "2026-10-04T00:00:00Z", 10)
+            .await;
         assert_eq!(reconciled_again, 0);
     }
 }

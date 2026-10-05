@@ -10,5 +10,5 @@ pub mod repository;
 pub mod service;
 
 pub use model::{ComputeAllocation, ComputeInstance, ComputeNode, ComputeOffering};
-pub use repository::InMemoryComputeRepository;
+pub use repository::{ComputeRepository, InMemoryComputeRepository};
 pub use service::ComputeService;
