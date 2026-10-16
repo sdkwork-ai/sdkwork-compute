@@ -1,1 +1,6 @@
 /target/
+
+# --- SDKWork: gitignore completeness (2026-10-16) ---
+# Added by repo-commit task; targeted rules only, compliant with check-gitignore-standard
+node_modules/
+dist/
