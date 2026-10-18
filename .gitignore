@@ -4,3 +4,25 @@
 # Added by repo-commit task; targeted rules only, compliant with check-gitignore-standard
 node_modules/
 dist/
+
+# --- SDKWork: gitignore completeness (2026-10-18) ---
+# Added by repo-commit task; targeted rules only, compliant with check-gitignore-standard
+
+# Rust build artifacts at any depth (root /target/ only covered the workspace root)
+**/target/
+**/*.rs.bk
+
+# Logs
+*.log
+
+# Environment files and secrets (never commit)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
