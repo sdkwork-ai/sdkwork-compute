@@ -26,3 +26,10 @@ dist/
 Thumbs.db
 .idea/
 .vscode/
+
+# Temporary scratch files and tool caches (never commit). Added by repo-commit sweep.
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
