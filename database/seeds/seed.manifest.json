@@ -14,20 +14,32 @@
   ],
   "localeSets": {
     "zh-CN": {
-      "version": "0.1.0",
+      "version": "1.0.0",
       "required": true,
-      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": [
-        "locales/zh-CN/common.json"
-      ]
+      "checksum": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "files": []
     },
     "en-US": {
-      "version": "0.1.0",
-      "required": true,
-      "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "files": [
-        "locales/en-US/common.json"
-      ]
+      "version": "1.0.0",
+      "required": false,
+      "checksum": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "files": []
+    }
+  },
+  "profiles": {
+    "minimal": {
+      "common": [],
+      "locales": {
+        "zh-CN": [],
+        "en-US": []
+      }
+    },
+    "standard": {
+      "common": [],
+      "locales": {
+        "zh-CN": [],
+        "en-US": []
+      }
     }
   }
 }
